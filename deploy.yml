@@ -3,9 +3,19 @@
   hosts: prod
   become: true
   tasks:
-  - name: Create Apache conteneur
-    docker_container:
-      name: webapp
-      image: httpd
-      ports:
-        - "80:80"
+    - name: "html file generation"
+      template:
+        src: index.html
+        dest: /home/dsk/index.html
+
+    - name: Install git and wget
+      apt: name='{{ item }}' update_cache=yes
+      loop: [ 'git', 'wget']
+    - name: Create Apache conteneur
+      docker_container:
+        name: webapp
+        image: httpd
+        ports:
+          - "80:80"
+        volumes:
+          - /home/dsk/index.html:/usr/local/apache2/htdocs/index.html
